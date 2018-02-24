@@ -1,9 +1,9 @@
 # TouhouGame
-By Alexander Nguyen
-Course: CMPS 4490 Game Design
-Professor: Gordon Griesel
-Framework: Asteroids by Gordom Griesel
-Modification: Alexander Nguyen
+By Alexander Nguyen <br>
+Course: CMPS 4490 Game Design <br>
+Professor: Gordon Griesel <br>
+Framework: Asteroids by Gordom Griesel <br>
+Modification: Alexander Nguyen<br><br><br>
 
 
 Git Clone onto Linux. Make sure to have GL and GLU library installed on your computer and any other necessary files 
