@@ -499,12 +499,8 @@ int check_keys(XEvent *e)
 	switch (key) {
 		case XK_Escape:
 			return 1;
-		case XK_Up:
-			break;
 		case XK_Left:
 			break;
-		case XK_Down:
-            break;
 		case XK_Right:
 			break;
 	}
@@ -716,9 +712,7 @@ void physics()
 		//convert ship angle to radians
 		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
 		//convert angle to a vector
-		Flt xdir = 2.0;//cos(rad);
-		Flt ydir = 2.0;//sin(rad);
-		//g.touhou.vel[0] += xdir*0.02f;
+		Flt ydir = 2.0;
 		g.touhou.vel[1] += ydir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -729,6 +723,46 @@ void physics()
 			g.touhou.vel[1] *= speed;
 		}
 	}
+	if (gl.keys[XK_Down]) {
+		Flt ydir = 2.0;
+		g.touhou.vel[1] -= ydir*0.02f;
+		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
+				g.touhou.vel[1]*g.touhou.vel[1]);
+		if (speed > 2.0f) {
+			speed = 2.0f;
+			normalize2d(g.touhou.vel);
+			g.touhou.vel[0] *= speed;
+			g.touhou.vel[1] *= speed;
+		}
+
+	}
+	if (gl.keys[XK_Left]) {
+		Flt xdir = 2.0;
+		g.touhou.vel[0] -= xdir*0.02f;
+		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
+				g.touhou.vel[1]*g.touhou.vel[1]);
+		if (speed > 2.0f) {
+			speed = 2.0f;
+			normalize2d(g.touhou.vel);
+			g.touhou.vel[0] *= speed;
+			g.touhou.vel[1] *= speed;
+		}
+
+	}
+	if (gl.keys[XK_Right]) {
+		Flt xdir = 2.0;
+		g.touhou.vel[0] += xdir*0.02f;
+		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
+				g.touhou.vel[1]*g.touhou.vel[1]);
+		if (speed > 2.0f) {
+			speed = 2.0f;
+			normalize2d(g.touhou.vel);
+			g.touhou.vel[0] *= speed;
+			g.touhou.vel[1] *= speed;
+		}
+
+	}
+
 	if (gl.keys[XK_space]) {
 		//a little time between each bullet
 		struct timespec bt;
