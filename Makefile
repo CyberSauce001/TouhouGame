@@ -4,8 +4,8 @@ LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm #-lXrandr
 
 all: Touhou
 
-Touhou: Touhou.cpp log.cpp timers.cpp
-	g++ $(CFLAGS) Touhou.cpp log.cpp timers.cpp libggfonts.a -Wall -Wextra $(LFLAGS) -otouhou
+Touhou: Touhou.cpp
+	g++ $(CFLAGS) Touhou.cpp timers.cpp log.cpp libggfonts.a -Wall -Wextra $(LFLAGS) -otouhou
 
 clean:
 	rm -f touhou

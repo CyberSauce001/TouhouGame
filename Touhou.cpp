@@ -17,7 +17,7 @@
 //Week 2: Researching and looking at different frameworks and idea.
 //Week 3: Begin adding classes, some function, and plannig idea for what to have in the game.
 //Week 4: Change functionality and make sure it matches with the game I am creating
-//Week 5:
+//Week 5: Adding enum state and slowly adding stuff in.
 
 
 //
@@ -28,55 +28,11 @@
 //This program is a game starting point for a 3350 project.
 //
 //
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <unistd.h>
-#include <ctime>
-#include <cmath>
-#include <X11/Xlib.h>
-//#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
-#include "log.h"
-#include "fonts.h"
 
-//defined types
-typedef float Flt;
-typedef float Vec[3];
-typedef Flt	Matrix[4][4];
+#include "game.h"
 
-//macros
-#define rnd() (((Flt)rand())/(Flt)RAND_MAX)
-#define random(a) (rand()%a)
-#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
-#define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
-#define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
-#define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
-#define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
-						(c)[1]=(a)[1]-(b)[1]; \
-						(c)[2]=(a)[2]-(b)[2]
-//constants
-const float timeslice = 1.0f;
-const float gravity = -0.2f;
-#define PI 3.141592653589793
-#define ALPHA 1
-const int MAX_BULLETS = 5000;
-const Flt MINIMUM_ALIEN_SIZE = 60.0;
+//---------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-//Setup timers
-const double physicsRate = 1.0 / 60.0;
-const double oobillion = 1.0 / 1e9;
-extern struct timespec timeStart, timeCurrent;
-extern struct timespec timePause;
-extern double physicsCountdown;
-extern double timeSpan;
-extern double timeDiff(struct timespec *start, struct timespec *end);
-extern void timeCopy(struct timespec *dest, struct timespec *source);
-//-----------------------------------------------------------------------------
 
 class Global {
 public:
@@ -395,7 +351,7 @@ void check_mouse(XEvent *e)
 			struct timespec bt;
 			clock_gettime(CLOCK_REALTIME, &bt);
 			double ts = timeDiff(&g.bulletTimer, &bt);
-			if (ts > 0.1) {
+			if (ts > 0.00001) {
 				timeCopy(&g.bulletTimer, &bt);
 				//shoot a bullet...
 				if (g.nbullets < MAX_BULLETS) {
@@ -499,8 +455,12 @@ int check_keys(XEvent *e)
 	switch (key) {
 		case XK_Escape:
 			return 1;
+		case XK_Up:
+			break;
 		case XK_Left:
 			break;
+		case XK_Down:
+            break;
 		case XK_Right:
 			break;
 	}
@@ -589,7 +549,7 @@ void physics()
 		Bullet *b = &g.barr[i];
 		//How long has bullet been alive?
 		double ts = timeDiff(&b->time, &bt);
-		if (ts > 2.5) {
+		if (ts > 100.0) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
 				sizeof(Bullet));
@@ -601,7 +561,7 @@ void physics()
 		b->pos[0] += b->vel[0];
 		b->pos[1] += b->vel[1];
 		//Check for collision with window edges
-		if (b->pos[0] < 0.0) {
+	/*	if (b->pos[0] < 0.0) {
 			b->pos[0] += (float)gl.xres;
 		}
 		else if (b->pos[0] > (float)gl.xres) {
@@ -612,7 +572,7 @@ void physics()
 		}
 		else if (b->pos[1] > (float)gl.yres) {
 			b->pos[1] -= (float)gl.yres;
-		}
+		}*/
 		i++;
 	}
 	//
@@ -696,23 +656,13 @@ void physics()
 	}
 	//---------------------------------------------------
 	//check keys pressed now
-	/*if (gl.keys[XK_Left]) {
-		g.touhou.angle += 4.0;
-		if (g.touhou.angle >= 360.0f)
-			g.touhou.angle -= 360.0f;
-	}
-	if (gl.keys[XK_Right]) {
-		g.touhou.angle -= 4.0;
-		if (g.touhou.angle < 0.0f)
-			g.touhou.angle += 360.0f;
-	}*/
 	//controls the player movements
 	if (gl.keys[XK_Up]) {
 		//apply thrust
 		//convert ship angle to radians
 		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
 		//convert angle to a vector
-		Flt ydir = 2.0;
+		Flt ydir = 2.0;//sin(rad);
 		g.touhou.vel[1] += ydir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -724,7 +674,11 @@ void physics()
 		}
 	}
 	if (gl.keys[XK_Down]) {
-		Flt ydir = 2.0;
+		//apply thrust
+		//convert ship angle to radians
+		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
+		//convert angle to a vector
+		Flt ydir = 2.0;//sin(rad);
 		g.touhou.vel[1] -= ydir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -734,10 +688,14 @@ void physics()
 			g.touhou.vel[0] *= speed;
 			g.touhou.vel[1] *= speed;
 		}
-
 	}
-	if (gl.keys[XK_Left]) {
-		Flt xdir = 2.0;
+
+    if (gl.keys[XK_Left]) {
+		//apply thrust
+		//convert ship angle to radians
+		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
+		//convert angle to a vector
+		Flt xdir = 2.0;//sin(rad);
 		g.touhou.vel[0] -= xdir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -747,10 +705,14 @@ void physics()
 			g.touhou.vel[0] *= speed;
 			g.touhou.vel[1] *= speed;
 		}
-
 	}
+
 	if (gl.keys[XK_Right]) {
-		Flt xdir = 2.0;
+		//apply thrust
+		//convert ship angle to radians
+		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
+		//convert angle to a vector
+		Flt xdir = 2.0;//cos(rad);
 		g.touhou.vel[0] += xdir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -760,7 +722,6 @@ void physics()
 			g.touhou.vel[0] *= speed;
 			g.touhou.vel[1] *= speed;
 		}
-
 	}
 
 	if (gl.keys[XK_space]) {
@@ -795,16 +756,6 @@ void physics()
 			}
 		}
 	}
-/*	if (g.mouseThrustOn) {
-		//should thrust be turned off
-		struct timespec mtt;
-		clock_gettime(CLOCK_REALTIME, &mtt);
-		double tdif = timeDiff(&mtt, &g.mouseThrustTimer);
-		//std::cout << "tdif: " << tdif << std::endl;
-		if (tdif < -0.3)
-			g.mouseThrustOn = false;
-	}*/
-}
 
 void render()
 {
@@ -840,27 +791,6 @@ void render()
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
-/*	if (gl.keys[XK_Up]) {                         
-		int i;
-		//draw thrust
-		Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		Flt xs,ys,xe,ye,r;
-		glBegin(GL_LINES);
-		for (i=0; i<16; i++) {
-			xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-			ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-			r = rnd()*40.0+40.0;
-			xe = -xdir * r + rnd() * 18.0 - 9.0;
-			ye = -ydir * r + rnd() * 18.0 - 9.0;
-			glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-			glVertex2f(g.touhou.pos[0]+xs,g.touhou.pos[1]+ys);
-			glVertex2f(g.touhou.pos[0]+xe,g.touhou.pos[1]+ye);
-		}
-		glEnd();
-	}*/
 	//-------------------------------------------------------------------------
 	//Draw the asteroids
 	{
