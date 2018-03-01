@@ -96,6 +96,7 @@ public:
 class Game {
 public:
 	Touhou touhou;
+	Aliens aliens;
 	Aliens *ahead;
 	Bullet *barr;
 	int naliens;
@@ -370,9 +371,6 @@ void check_mouse(XEvent *e)
 					b->pos[1] += ydir*20.0f;
 					b->vel[0] += xdir*6.0f + rnd()*0.1;
 					b->vel[1] += ydir*6.0f + rnd()*0.1;
-					b->color[0] = 1.0f;
-					b->color[1] = 1.0f;
-					b->color[2] = 1.0f;
 					++g.nbullets;
 				}
 			}
@@ -381,52 +379,6 @@ void check_mouse(XEvent *e)
 			//Right button is down
 		}
 	}
-/*	//keys[XK_Up] = 0;
-	if (savex != e->xbutton.x || savey != e->xbutton.y) {
-		//Mouse moved
-		int xdiff = savex - e->xbutton.x;
-		int ydiff = savey - e->xbutton.y;
-		if (++ct < 10)
-			return;		
-		//std::cout << "savex: " << savex << std::endl << std::flush;
-		//std::cout << "e->xbutton.x: " << e->xbutton.x << std::endl <<
-		//std::flush;
-		if (xdiff > 0) {
-			//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
-			g.touhou.angle += 0.05f * (float)xdiff;
-			if (g.touhou.angle >= 360.0f)
-				g.touhou.angle -= 360.0f;
-		}
-		else if (xdiff < 0) {
-			//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
-			g.touhou.angle += 0.05f * (float)xdiff;
-			if (g.touhou.angle < 0.0f)
-				g.touhou.angle += 360.0f;
-		}
-		if (ydiff > 0) {
-			//apply thrust
-			//convert ship angle to radians
-			Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			g.touhou.vel[0] += xdir * (float)ydiff * 0.01f;
-			g.touhou.vel[1] += ydir * (float)ydiff * 0.01f;
-			Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
-					g.touhou.vel[1]*g.touhou.vel[1]);
-			if (speed > 10.0f) {
-				speed = 10.0f;
-				normalize2d(g.touhou.vel);
-				g.touhou.vel[0] *= speed;
-				g.touhou.vel[1] *= speed;
-			}
-		//	g.mouseThrustOn = true;
-		//	clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-		}
-		//x11.set_mouse_position(100,100);
-		savex=100;
-		savey=100;
-	}*/
 }
 
 int check_keys(XEvent *e)
@@ -527,17 +479,21 @@ void physics()
 	g.touhou.pos[0] += g.touhou.vel[0];
 	g.touhou.pos[1] += g.touhou.vel[1];
 	//Check for collision with window edges
+	//left of the screen
 	if (g.touhou.pos[0] < 0.0) {
-		g.touhou.pos[0] += (float)gl.xres;
+		g.touhou.pos[0] = 0;
 	}
+	//right of the screen
 	else if (g.touhou.pos[0] > (float)gl.xres) {
-		g.touhou.pos[0] -= (float)gl.xres;
+		g.touhou.pos[0] = (float)gl.xres;
 	}
+	//bottom of the screen
 	else if (g.touhou.pos[1] < 0.0) {
-		g.touhou.pos[1] += (float)gl.yres;
+		g.touhou.pos[1] = 0;
 	}
+	//top of screen
 	else if (g.touhou.pos[1] > (float)gl.yres) {
-		g.touhou.pos[1] -= (float)gl.yres;
+		g.touhou.pos[1] = (float)gl.yres;
 	}
 	//
 	//
@@ -549,7 +505,7 @@ void physics()
 		Bullet *b = &g.barr[i];
 		//How long has bullet been alive?
 		double ts = timeDiff(&b->time, &bt);
-		if (ts > 100.0) {
+		if (ts > 50.0) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
 				sizeof(Bullet));
@@ -561,18 +517,22 @@ void physics()
 		b->pos[0] += b->vel[0];
 		b->pos[1] += b->vel[1];
 		//Check for collision with window edges
-	/*	if (b->pos[0] < 0.0) {
+		//left of the screen
+		if (b->pos[0] < 0.0) {
+			b->pos[0] = -10;
+		}
+		//right of the screen
+		else if (b->pos[0] > (float)gl.xres) {
 			b->pos[0] += (float)gl.xres;
 		}
-		else if (b->pos[0] > (float)gl.xres) {
-			b->pos[0] -= (float)gl.xres;
-		}
+		//bottom of the screen
 		else if (b->pos[1] < 0.0) {
 			b->pos[1] += (float)gl.yres;
 		}
+		//top of the screen
 		else if (b->pos[1] > (float)gl.yres) {
-			b->pos[1] -= (float)gl.yres;
-		}*/
+			b->pos[1] += (float)gl.yres;
+		}
 		i++;
 	}
 	//
@@ -633,8 +593,8 @@ void physics()
 					}
 				} else {
 					a->color[0] = 1.0;
-					a->color[1] = 0.1;
-					a->color[2] = 0.1;
+					a->color[1] = 0.5;
+					a->color[2] = 0.7;
 					//alien is too small to break up
 					//delete the asteroid and bullet
 					Aliens *savea = a->next;
@@ -657,7 +617,7 @@ void physics()
 	//---------------------------------------------------
 	//check keys pressed now
 	//controls the player movements
-	if (gl.keys[XK_Up]) {
+	if (gl.keys[XK_w]) {
 		//apply thrust
 		//convert ship angle to radians
 		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
@@ -673,12 +633,8 @@ void physics()
 			g.touhou.vel[1] *= speed;
 		}
 	}
-	if (gl.keys[XK_Down]) {
-		//apply thrust
-		//convert ship angle to radians
-		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt ydir = 2.0;//sin(rad);
+	if (gl.keys[XK_s]) {
+		Flt ydir = 2.0;
 		g.touhou.vel[1] -= ydir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -690,12 +646,8 @@ void physics()
 		}
 	}
 
-    if (gl.keys[XK_Left]) {
-		//apply thrust
-		//convert ship angle to radians
-		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = 2.0;//sin(rad);
+    if (gl.keys[XK_a]) {
+		Flt xdir = 2.0;
 		g.touhou.vel[0] -= xdir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -707,12 +659,8 @@ void physics()
 		}
 	}
 
-	if (gl.keys[XK_Right]) {
-		//apply thrust
-		//convert ship angle to radians
-		//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = 2.0;//cos(rad);
+	if (gl.keys[XK_d]) {
+		Flt xdir = 2.0;
 		g.touhou.vel[0] += xdir*0.02f;
 		Flt speed = sqrt(g.touhou.vel[0]*g.touhou.vel[0]+
 				g.touhou.vel[1]*g.touhou.vel[1]);
@@ -749,14 +697,15 @@ void physics()
 				b->pos[1] += ydir*20.0f;
 				b->vel[0] += xdir*6.0f + rnd()*0.1;
 				b->vel[1] += ydir*6.0f + rnd()*0.1;
-				b->color[0] = 1.0f;
-				b->color[1] = 1.0f;
-				b->color[2] = 1.0f;
+				//b->color[0] = 1.0f;
+				//b->color[1] = 1.0f;
+				//b->color[2] = 1.0f;
 				g.nbullets++;
 			}
 		}
 	}
 
+}
 void render()
 {
 	Rect r;
@@ -766,6 +715,7 @@ void render()
 	r.left = 10;
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ff0000, "3350 - Touhou");
+	ggprint8b(&r, 16, 0x00ffff00, "Move using WASD");
 	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 	ggprint8b(&r, 16, 0x00ffff00, "n aliens: %i", g.naliens);
 	//-------------------------------------------------------------------------
@@ -831,7 +781,7 @@ void render()
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]);
 		glVertex2f(b->pos[0],      b->pos[1]-1.0f);
 		glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-		glColor3f(0.8, 0.8, 0.8);
+		glColor3f(0.2, 0.9, 0.8);
 		glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
 		glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);

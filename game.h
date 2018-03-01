@@ -40,7 +40,7 @@ const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
-const int MAX_BULLETS = 500000000;
+const int MAX_BULLETS = 5000;
 const Flt MINIMUM_ALIEN_SIZE = 60.0;
 
 enum State {
