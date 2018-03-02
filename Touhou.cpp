@@ -130,8 +130,8 @@ public:
 			a->angle = 0.0;
 			a->rotate = rnd() * 4.0 - 2.0;
 			a->color[0] = 0.8;
-			a->color[1] = 0.8;
-			a->color[2] = 0.7;
+			a->color[1] = 0.0;
+			a->color[2] = 0.1;
 			a->vel[0] = (Flt)(rnd()*2.0-1.0);
 			a->vel[1] = (Flt)(rnd()*2.0-1.0);
 			a->next = ahead;
@@ -677,7 +677,7 @@ void physics()
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
 		double ts = timeDiff(&g.bulletTimer, &bt);
-		if (ts > 0.0001) {  // this controll the bullet ouput
+		if (ts > 0.1) {  // this controll the bullet ouput
 			timeCopy(&g.bulletTimer, &bt);
 			if (g.nbullets < MAX_BULLETS) {
 				//shoot a bullet...
@@ -774,14 +774,14 @@ void render()
 	for (int i=0; i < g.nbullets; i++) {
 		Bullet *b = &g.barr[i];
 		//Log("draw bullet...\n");
-		glColor3f(1.0, 1.0, 1.0);
+		glColor3f(0.0, 0.0, 1.0);
 		glBegin(GL_POINTS);
 		glVertex2f(b->pos[0],      b->pos[1]);
 		glVertex2f(b->pos[0]-1.0f, b->pos[1]);
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]);
 		glVertex2f(b->pos[0],      b->pos[1]-1.0f);
 		glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-		glColor3f(0.2, 0.9, 0.8);
+		glColor3f(1.0, 1.0, 1.0);
 		glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
 		glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
