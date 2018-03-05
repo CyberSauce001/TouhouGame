@@ -17,6 +17,7 @@
 #include <GL/glx.h>
 #include "log.h"
 #include "fonts.h"
+#include "ppm.h"
 
 //defined types
 typedef float Flt;
@@ -43,12 +44,15 @@ const float gravity = -0.2f;
 const int MAX_BULLETS = 5000;
 const Flt MINIMUM_ALIEN_SIZE = 60.0;
 
+//State event
 enum State {
     NONE,
     MENU,
     GAME,
     GAMEOVER
 };
+
+//Class Game here
 //---------------------------------------------------------------------
 //Setup timers
 const double physicsRate = 1.0 / 60.0;
