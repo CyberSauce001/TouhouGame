@@ -71,6 +71,7 @@ public:
 	float color[3];
 	struct timespec time;
 public:
+
 	Bullet() { }
 };
 
@@ -102,17 +103,14 @@ public:
 	int naliens;
 	int nbullets;
 	struct timespec bulletTimer;
-	//struct timespec mouseThrustTimer;
-	//bool mouseThrustOn;
 public:
 	Game() {
 		ahead = NULL;
 		barr = new Bullet[MAX_BULLETS];
 		naliens = 0;
 		nbullets = 0;
-		//mouseThrustOn = false;
 		//build 10 asteroids...
-		for (int j=0; j<10; j++) {
+		for (int j=0; j<1; j++) {
 			Aliens *a = new Aliens;
 			a->nverts = 8;
 			a->radius = rnd()*80.0 + 40.0;
@@ -140,6 +138,7 @@ public:
 			ahead = a;
 			++naliens;
 		}
+
 		clock_gettime(CLOCK_REALTIME, &bulletTimer);
 	}
 	~Game() {
@@ -613,6 +612,7 @@ void physics()
 		if (a == NULL)
 			break;
 		a = a->next;
+		
 	}
 	//---------------------------------------------------
 	//check keys pressed now
@@ -704,7 +704,7 @@ void physics()
 			}
 		}
 	}
-
+	
 }
 void render()
 {
