@@ -110,7 +110,7 @@ public:
 		naliens = 0;
 		nbullets = 0;
 		//build 10 asteroids...
-		for (int j=0; j<1; j++) {
+		for (int j=0; j<5; j++) {
 			Aliens *a = new Aliens;
 			a->nverts = 8;
 			a->radius = rnd()*80.0 + 40.0;
@@ -504,7 +504,7 @@ void physics()
 		Bullet *b = &g.barr[i];
 		//How long has bullet been alive?
 		double ts = timeDiff(&b->time, &bt);
-		if (ts > 50.0) {
+		if (ts > 20.0) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
 				sizeof(Bullet));
@@ -557,6 +557,7 @@ void physics()
 		a = a->next;
 	
 	}
+	
 	//
 	//Asteroid collision with bullets?
 	//If collision detected:
@@ -564,11 +565,12 @@ void physics()
 	//     2. break the asteroid into pieces
 	//        if asteroid small, delete it
 	a = g.ahead;
-	if(a) {
+	//Aliens shoot bullets
+	if(g.ahead) {
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
 		double ts = timeDiff(&g.bulletTimer, &bt);
-		if (ts > 0.1) {  // this controll the bullet ouput
+		if (ts > 0.001) {  // this controll the bullet ouput
 			timeCopy(&g.bulletTimer, &bt);
 			if (g.nbullets < MAX_BULLETS) {
 				//shoot a bullet...
@@ -588,13 +590,11 @@ void physics()
 				b->pos[1] += ydir*20.0f;
 				b->vel[0] += xdir*6.0f + rnd()*0.1;
 				b->vel[1] += ydir*6.0f + rnd()*0.1;
-				//b->color[0] = 1.0f;
-				//b->color[1] = 1.0f;
-				//b->color[2] = 1.0f;
 				g.nbullets++;
 			}
 		}
 	}
+
 	while (a) {
 		//is there a bullet within its radius?
 		int i=0;
@@ -602,8 +602,9 @@ void physics()
 			Bullet *b = &g.barr[i];
 			d0 = b->pos[0] - a->pos[0];
 			d1 = b->pos[1] - a->pos[1];
+			d2 = c->pos[0] - a->pos[0];
 			dist = (d0*d0 + d1*d1);
-			if (dist < (a->radius*a->radius)) {
+			if (dist < (a->radius*a->radius) && !a) {
 				//std::cout << "asteroid hit." << std::endl;
 				//this asteroid is hit.
 				if (a->radius > MINIMUM_ALIEN_SIZE) {
@@ -709,7 +710,7 @@ void physics()
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
 		double ts = timeDiff(&g.bulletTimer, &bt);
-		if (ts > 0.1) {  // this controll the bullet ouput
+		if (ts > 0.5) {  // this controll the bullet ouput
 			timeCopy(&g.bulletTimer, &bt);
 			if (g.nbullets < MAX_BULLETS) {
 				//shoot a bullet...
@@ -729,9 +730,6 @@ void physics()
 				b->pos[1] += ydir*20.0f;
 				b->vel[0] += xdir*6.0f + rnd()*0.1;
 				b->vel[1] += ydir*6.0f + rnd()*0.1;
-				//b->color[0] = 1.0f;
-				//b->color[1] = 1.0f;
-				//b->color[2] = 1.0f;
 				g.nbullets++;
 			}
 		}
