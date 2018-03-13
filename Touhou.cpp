@@ -18,6 +18,9 @@
 //Week 3: Begin adding classes, some function, and plannig idea for what to have in the game.
 //Week 4: Change functionality and make sure it matches with the game I am creating
 //Week 5: Adding enum state and slowly adding stuff in.
+//Week 6: Fixed collision and bullet output
+//Week 7: No updated, fix some errors
+//Week 8: Add bullet arrays and alien arrays.
 
 
 //
@@ -73,7 +76,7 @@ public:
 public:
 
 	Bullet() { }
-};
+}b[10];
 
 class Aliens {
 public:
@@ -92,7 +95,7 @@ public:
 		prev = NULL;
 		next = NULL;
 	}
-};
+}a[10];
 
 class Game {
 public:
@@ -110,11 +113,11 @@ public:
 		naliens = 0;
 		nbullets = 0;
 		//build 10 asteroids...
-		for (int j=0; j<5; j++) {
-			Aliens *a = new Aliens;
-			a->nverts = 8;
-			a->radius = rnd()*80.0 + 40.0;
-			Flt r2 = a->radius / 2.0;
+		for (int j=0; j<10; j++) {
+			//Aliens *a = new Aliens;
+			a[j].nverts = 8;
+			a[j].radius = rnd()*80.0 + 40.0;
+			Flt r2 = a[j].radius/2.0;
 			Flt angle = 0.0f;
 			Flt inc = (PI * 2.0) / (Flt)a->nverts;
 			for (int i=0; i<a->nverts; i++) {
