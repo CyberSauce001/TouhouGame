@@ -120,25 +120,25 @@ public:
 			Flt r2 = a[j].radius/2.0;
 			Flt angle = 0.0f;
 			Flt inc = (PI * 2.0) / (Flt)a->nverts;
-			for (int i=0; i<a->nverts; i++) {
-				a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+			for (int i=0; i<a[j].nverts; i++) {
+				a[j].vert[i][0] = sin(angle) * (r2 + rnd() * a[j].radius);
+				a[j].vert[i][1] = cos(angle) * (r2 + rnd() * a[j].radius);
 				angle += inc;
 			}
-			a->pos[0] = (Flt)(rand() % gl.xres);
-			a->pos[1] = (Flt)(rand() % gl.yres);
-			a->pos[2] = 0.0f;
-			a->angle = 0.0;
-			a->rotate = rnd() * 4.0 - 2.0;
-			a->color[0] = 0.8;
-			a->color[1] = 0.0;
-			a->color[2] = 0.1;
-			a->vel[0] = (Flt)(rnd()*2.0-1.0);
-			a->vel[1] = (Flt)(rnd()*2.0-1.0);
-			a->next = ahead;
+			a[j].pos[0] = (Flt)(rand() % gl.xres);
+			a[j].pos[1] = (Flt)(rand() % gl.yres);
+			a[j].pos[2] = 0.0f;
+			a[j].angle = 0.0;
+			a[j].rotate = rnd() * 4.0 - 2.0;
+			a[j].color[0] = 0.8;
+			a[j].color[1] = 0.0;
+			a[j].color[2] = 0.1;
+			a[j].vel[0] = (Flt)(rnd()*2.0-1.0);
+			a[j].vel[1] = (Flt)(rnd()*2.0-1.0);
+			a[j].next = ahead;
 			if (ahead != NULL)
-				ahead->prev = a;
-			ahead = a;
+				ahead->prev = a[j];
+			ahead = a[j];
 			++naliens;
 		}
 
@@ -347,7 +347,7 @@ void check_mouse(XEvent *e)
 	if (e->type == ButtonRelease) {
 		return;
 	}
-	if (e->type == ButtonPress) {
+	/*if (e->type == ButtonPress) {
 		if (e->xbutton.button==1) {
 			//Left button is down
 			//a little time between each bullet
@@ -376,7 +376,7 @@ void check_mouse(XEvent *e)
 					++g.nbullets;
 				}
 			}
-		}
+		}*/
 		if (e->xbutton.button==3) {
 			//Right button is down
 		}
@@ -452,7 +452,7 @@ void buildAlienFragment(Aliens *ta, Aliens *a)
 {
 	//build ta from a
 	ta->nverts = 8;
-	ta->radius = a->radius / 2.0;
+	ta->radius = a[j].radius / 2.0;
 	Flt r2 = ta->radius / 2.0;
 	Flt angle = 0.0f;
 	Flt inc = (PI * 2.0) / (Flt)ta->nverts;
@@ -461,16 +461,16 @@ void buildAlienFragment(Aliens *ta, Aliens *a)
 		ta->vert[i][1] = cos(angle) * (r2 + rnd() * ta->radius);
 		angle += inc;
 	}
-	ta->pos[0] = a->pos[0] + rnd()*10.0-5.0;
-	ta->pos[1] = a->pos[1] + rnd()*10.0-5.0;
+	ta->pos[0] = a[j].pos[0] + rnd()*10.0-5.0;
+	ta->pos[1] = a[j].pos[1] + rnd()*10.0-5.0;
 	ta->pos[2] = 0.0f;
 	ta->angle = 0.0;
-	ta->rotate = a->rotate + (rnd() * 4.0 - 2.0);
+	ta->rotate = a[j].rotate + (rnd() * 4.0 - 2.0);
 	ta->color[0] = 0.8;
 	ta->color[1] = 0.8;
 	ta->color[2] = 0.7;
-	ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
-	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
+	ta->vel[0] = a[j].vel[0] + (rnd()*2.0-1.0);
+	ta->vel[1] = a[j].vel[1] + (rnd()*2.0-1.0);
 	//std::cout << "frag" << std::endl;
 }
 
