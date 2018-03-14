@@ -33,7 +33,7 @@
 //
 
 #include "game.h"
-
+#define NUM  10
 //---------------------------------------------------------------------------
 
 
@@ -76,7 +76,7 @@ public:
 public:
 
 	Bullet() { }
-}b[10];
+}b[NUM];
 
 class Aliens {
 public:
@@ -95,7 +95,7 @@ public:
 		prev = NULL;
 		next = NULL;
 	}
-}a[10];
+}a[NUM];
 
 class Game {
 public:
@@ -113,7 +113,7 @@ public:
 		naliens = 0;
 		nbullets = 0;
 		//build 10 asteroids...
-		for (int j=0; j<10; j++) {
+		for (int j=0; j<NUM; j++) {
 			//Aliens *a = new Aliens;
 			a[j].nverts = 8;
 			a[j].radius = rnd()*80.0 + 40.0;
@@ -137,8 +137,8 @@ public:
 			a[j].vel[1] = (Flt)(rnd()*2.0-1.0);
 			a[j].next = ahead;
 			if (ahead != NULL)
-				ahead->prev = a[j];
-			ahead = a[j];
+				ahead->prev = &a[j];
+			ahead = &a[j];
 			++naliens;
 		}
 
@@ -347,36 +347,7 @@ void check_mouse(XEvent *e)
 	if (e->type == ButtonRelease) {
 		return;
 	}
-	/*if (e->type == ButtonPress) {
-		if (e->xbutton.button==1) {
-			//Left button is down
-			//a little time between each bullet
-			struct timespec bt;
-			clock_gettime(CLOCK_REALTIME, &bt);
-			double ts = timeDiff(&g.bulletTimer, &bt);
-			if (ts > 0.00001) {
-				timeCopy(&g.bulletTimer, &bt);
-				//shoot a bullet...
-				if (g.nbullets < MAX_BULLETS) {
-					Bullet *b = &g.barr[g.nbullets];
-					timeCopy(&b->time, &bt);
-					b->pos[0] = g.touhou.pos[0];
-					b->pos[1] = g.touhou.pos[1];
-					b->vel[0] = g.touhou.vel[0];
-					b->vel[1] = g.touhou.vel[1];
-					//convert ship angle to radians
-					//Flt rad = ((g.touhou.angle+90.0) / 360.0f) * PI * 2.0;
-					//convert angle to a vector
-					Flt xdir = 20;//cos(rad);
-					Flt ydir = 20;//sin(rad);
-					b->pos[0] += xdir*20.0f;
-					b->pos[1] += ydir*20.0f;
-					b->vel[0] += xdir*6.0f + rnd()*0.1;
-					b->vel[1] += ydir*6.0f + rnd()*0.1;
-					++g.nbullets;
-				}
-			}
-		}*/
+	if (e->type == ButtonPress) {
 		if (e->xbutton.button==3) {
 			//Right button is down
 		}
@@ -451,6 +422,7 @@ void deleteAlien(Game *g, Aliens *node)
 void buildAlienFragment(Aliens *ta, Aliens *a)
 {
 	//build ta from a
+	for (int j=0; j < NUM; j++) {
 	ta->nverts = 8;
 	ta->radius = a[j].radius / 2.0;
 	Flt r2 = ta->radius / 2.0;
@@ -471,6 +443,7 @@ void buildAlienFragment(Aliens *ta, Aliens *a)
 	ta->color[2] = 0.7;
 	ta->vel[0] = a[j].vel[0] + (rnd()*2.0-1.0);
 	ta->vel[1] = a[j].vel[1] + (rnd()*2.0-1.0);
+	}
 	//std::cout << "frag" << std::endl;
 }
 
@@ -506,7 +479,7 @@ void physics()
 	while (i < g.nbullets) {
 		Bullet *b = &g.barr[i];
 		//How long has bullet been alive?
-		double ts = timeDiff(&b->time, &bt);
+		double ts = timeDiff(&b[10].time, &bt);
 		if (ts > 20.0) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
@@ -516,24 +489,24 @@ void physics()
 			continue;
 		}
 		//move the bullet
-		b->pos[0] += b->vel[0];
-		b->pos[1] += b->vel[1];
+		b[10].pos[0] += b[10].vel[0];
+		b[10].pos[1] += b[10].vel[1];
 		//Check for collision with window edges
 		//left of the screen
-		if (b->pos[0] < 0.0) {
-			b->pos[0] = -10;
+		if (b[10].pos[0] < 0.0) {
+			b[10].pos[0] = -10;
 		}
 		//right of the screen
-		else if (b->pos[0] > (float)gl.xres) {
-			b->pos[0] += (float)gl.xres;
+		else if (b[10].pos[0] > (float)gl.xres) {
+			b[10].pos[0] += (float)gl.xres;
 		}
 		//bottom of the screen
-		else if (b->pos[1] < 0.0) {
-			b->pos[1] += (float)gl.yres;
+		else if (b[10].pos[1] < 0.0) {
+			b[10].pos[1] += (float)gl.yres;
 		}
 		//top of the screen
-		else if (b->pos[1] > (float)gl.yres) {
-			b->pos[1] += (float)gl.yres;
+		else if (b[10].pos[1] > (float)gl.yres) {
+			b[10].pos[1] += (float)gl.yres;
 		}
 		i++;
 	}
@@ -569,7 +542,7 @@ void physics()
 	//        if asteroid small, delete it
 	a = g.ahead;
 	//Aliens shoot bullets
-	if(g.ahead) {
+/*	if(g.ahead) {
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
 		double ts = timeDiff(&g.bulletTimer, &bt);
@@ -596,7 +569,7 @@ void physics()
 				g.nbullets++;
 			}
 		}
-	}
+	}*/
 
 	while (a) {
 		//is there a bullet within its radius?
@@ -605,9 +578,8 @@ void physics()
 			Bullet *b = &g.barr[i];
 			d0 = b->pos[0] - a->pos[0];
 			d1 = b->pos[1] - a->pos[1];
-			d2 = c->pos[0] - a->pos[0];
 			dist = (d0*d0 + d1*d1);
-			if (dist < (a->radius*a->radius) && !a) {
+			if (dist < (a->radius*a->radius)) {
 				//std::cout << "asteroid hit." << std::endl;
 				//this asteroid is hit.
 				if (a->radius > MINIMUM_ALIEN_SIZE) {
@@ -627,9 +599,9 @@ void physics()
 						g.naliens++;
 					}
 				} else {
-					a->color[0] = 1.0;
-					a->color[1] = 0.5;
-					a->color[2] = 0.7;
+					a[10].color[0] = 1.0;
+					a[10].color[1] = 0.5;
+					a[10].color[2] = 0.7;
 					//alien is too small to break up
 					//delete the asteroid and bullet
 					Aliens *savea = a->next;
